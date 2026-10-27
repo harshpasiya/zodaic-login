@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="robots" content="noindex, nofollow">
+<title>Zodaic Login Forwarder</title>
+<style>
+  :root { --bg: #f7f7f5; --ink: #1d1d1b; --ink2: #5c5c58; --card: #fff; --ring: #e2e2dd; --accent: #2563eb; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #111; --ink: #ececea; --ink2: #a3a39e; --card: #1b1b1b; --ring: #2c2c2a; --accent: #5b8def; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 520px; margin: 12vh auto; padding: 24px; background: var(--card); border: 1px solid var(--ring); border-radius: 12px; }
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  p { color: var(--ink2); margin: 8px 0; }
+  a { color: var(--accent); }
+  code { font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Returning to Zodaic Market Terminal…</h1>
+  <p id="msg">Sending your Angel One login back to the app running on this computer.</p>
+</main>
+<script>
+  // Angel One SmartAPI only accepts a public redirect URL, so its publisher login lands here.
+  // This page forwards the login to the local app at once. It loads nothing else, sends nothing
+  // anywhere except 127.0.0.1, and keeps no copy. Change PORT if your app runs on another port.
+  (function () {
+    var PORT = 5000;
+    var q = location.search;
+    var params = new URLSearchParams(q);
+    var title = document.getElementById("title"), msg = document.getElementById("msg");
+    if (!params.get("auth_token")) {
+      title.textContent = "Nothing to forward";
+      msg.textContent = "This page passes an Angel One login back to Zodaic Market Terminal. Start from the app: Settings → Angel One → Connect to Angel One.";
+      return;
+    }
+    var target = "http://127.0.0.1:" + PORT + "/angel/callback" + q;
+    location.replace(target);
+    // Shown only if the app isn't running (the browser stays here).
+    setTimeout(function () {
+      title.textContent = "Couldn't reach the app";
+      msg.innerHTML = "Start Zodaic Market Terminal (<code>start_terminal.bat</code>), then <a id=\"retry\" href=\"#\">try again</a>. The login is valid for 10 minutes after you clicked Connect.";
+      document.getElementById("retry").onclick = function (e) { e.preventDefault(); location.replace(target); };
+    }, 4000);
+  })();
+</script>
+</body>
+</html>
